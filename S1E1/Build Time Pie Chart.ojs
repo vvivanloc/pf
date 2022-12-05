@@ -6,15 +6,15 @@ d3 = require("d3@5");
 
 data = d3.csvParse(
 `name,value
-a, 60
+i, 40
+a, 90
 b, 60
 c, 180
-d, 1020
 e, 46
 f, 420
-g, 186
+d, 1020
 h, 36
-i, 22
+g, 186
 j, 340
 `,
   d3.autoType
@@ -40,10 +40,31 @@ theme = Generators.observe((notify) => {
 
 theme = "light"
 
-fillColor = theme === "dark" ? "white" : "black"
+
+legendTypes= ["inside","polylines", "outside"]
+sortMethods=["none","byName","byValue"]
+gradientColors=["spectral","rgb","hsl","viridis"]
+
+viewof legendType = Inputs.select(legendTypes, {label: "Legend", value:"outside"})
+
+viewof sortMethod = Inputs.select(sortMethods, {label: "Sort by", value:"byValue"})
 
 
-/* WSL recommended sorting for pie chart */
+// FIXME: does not sort well
+viewof useWSJsort = Inputs.toggle({label:"Wall Street Journal sorting", value:false})
+
+viewof nbMaxSlices = Inputs.range([1,data.length], {label:"Nb max slices",step: 1, value:2})
+
+// "spectral"|"rgb"|"hsl"|"viridis"
+viewof gradientColor = Inputs.select(gradientColors, {label: "Color gradient", value:"spectral"})
+viewof startColor = Inputs.color({label: "Start color", value: d3.color("red").formatHex(), disabled:gradientColor==="spectral"||gradientColor==="viridis"})
+viewof endColor = Inputs.color({label: "End color", value: d3.color("blue").formatHex()})
+viewof gradientNbSteps = Inputs.range([1,nbMaxSlices], {label:"Repeat color step",step: 1, value:nbMaxSlices})
+
+
+viewof donut = Inputs.toggle({label:"Mmmm donut!", value:false})
+ 
+/* WSL recommended sorting for pie chart  */
 MyWSJPieSorting = function (array) {
   let WSJproportion = [array[0]]
     .concat(array.slice(2).reverse())
@@ -51,37 +72,66 @@ MyWSJPieSorting = function (array) {
   return WSJproportion;
 };
 
+sortingFunctor = function () {
+  if (sortMethod==="none") {
+    return null;
+  }
+  if (sortMethod==="byName") {
+    return (a, b) => d3.ascending(a.name, b.name);
+  }
+  if (sortMethod==="byValue") {
+    return (a, b) => d3.descending(a.value,b.value);
+  }
+}
+
+buildColor = function () {
+  if (gradientColor==="spectral") {
+    return d3.quantize((t) => d3.interpolateSpectral(t * 0.8 + 0.1), gradientNbSteps) 
+  }
+
+  if (gradientColor==="rgb") {
+    return d3.quantize((t) => d3.interpolateRgb(startColor, endColor)(t * 0.8 + 0.1), gradientNbSteps)
+  }
+
+  if (gradientColor==="hsl") {
+    return d3.quantize((t) => d3.interpolateHslLong(startColor, endColor)(t), gradientNbSteps)
+  }
+
+  if (gradientColor==="viridis") {
+    return d3.quantize((t) => d3.interpolateViridis(t), gradientNbSteps)
+  }
+}
+
 chart = {
-  const pie = d3
-    .pie()
-    .value((d) => d.value);
 
-  let _data = JSON.parse(JSON.stringify(data));
+  const strokeColor = theme === "dark" ? "white" : "black"
+  const _nbMaxSlices = Math.min(nbMaxSlices,data.length)
+  
+  let _data = [...data];
 
-  //_data = _data.sort((a, b) => d3.ascending(a.name, b.name))
-  _data = _data.sort((a, b) => d3.descending(a.value,b.value))
-  const nbMaxSlices = 3;
-  _data = _data.slice(0,nbMaxSlices).concat([{name: "other", value:_data.slice(nbMaxSlices,_data.length-1).reduce((accum,d)=>accum+d.value,0)}])
-   //_data.slice().sort((a, b) => d3.descending(a.value, b.value))
-  // let _data = MyWSJPieSorting(data);
-  /*
-  _data = _data.slice(0,3)
-  _data*/
+  const _sortingFunctor = sortingFunctor();
+  if (_sortingFunctor!==null) {
+    _data = _data.sort(_sortingFunctor)
+  }  
+  
+  if (_nbMaxSlices<data.length) {
+    _data = _data.slice(0,_nbMaxSlices).concat([{name: "other", value:_data.slice(_nbMaxSlices,_data.length-1).reduce((accum,d)=>accum+d.value,0)}])
+  }
+   
+   if (useWSJsort) {
+   _data = MyWSJPieSorting(_data);
+  }
 
   const color = d3
   .scaleOrdinal()
   .domain(_data.map((d) => d.value))
-  .range(
-    d3
-      /*.quantize((t) => d3.interpolateSpectral(t * 0.8 + 0.1), data.length)
-      .reverse()*/
-    /*  .quantize((t) => d3.interpolateRgb("red", "blue")(t * 0.8 + 0.1), data.length)*/
-    /*.quantize((t) => d3.interpolateHslLong("red", "blue")(t), data.length)*/
-    /*.quantize((t) => d3.interpolateViridis(t), _data.length)*/
-    .quantize((t) => d3.interpolateViridis(t), nbMaxSlices).concat("grey")
-  );
+  .range(buildColor().concat("grey"));
 
-  const arcs = pie(_data);
+  const pie = d3.pie()
+    .sort(_sortingFunctor)
+    .value(function(d) {return d.value; })
+  
+  const arcs =pie(_data);
 
   const height = Math.min(width, 400);
 
@@ -92,132 +142,147 @@ chart = {
 
   const svg = d3
     .create("svg")
-    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+    .attr("viewBox", [-width / 2, -height / 2, width, height*1.2]);
 
   const radius = Math.min(width, height) / 2;
 
-  const donut = false;
-  var innerArc = d3
+  
+  const innerArc = d3
     .arc()
     .outerRadius(radius * 0.8)
-    .innerRadius(radius * donut ? 0.4 : 0.0);
-  var outerArc = d3
+    .innerRadius(radius * (donut ? 0.4 : 0.0));
+  const outerArc = d3
     .arc()
     .innerRadius(radius * 0.9)
     .outerRadius(radius * 0.9);
 
-  /* ----- total ------ */
-  svg
-    .append("g")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", 24)
-    .attr("text-anchor", "middle")
-    .attr("fill", fillColor)
-    .append("text")
+  if (donut) {
+    /* ----- total ------ */
+    svg
+      .append("g")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", fontSize*1.2)
+      .attr("text-anchor", "middle")
+      .attr("fill", strokeColor)
+      .append("text")
 
-    .call((text) =>
-      text
-        .append("tspan")
-        .attr("y", "-0.4em")
-        .attr("font-weight", "bold")
-        .text("total")
-    )
-    .call((text) =>
-      text
-        .append("tspan")
-        .attr("x", 0)
-        .attr("y", "0.9em")
-        .attr("font-weight", "bold")
-        .text(d3.sum(_data, (d) => d.value).toLocaleString("fr-FR"))
-    );
+      .call((text) =>
+        text
+          .append("tspan")
+          .attr("y", "-0.4em")
+          
+          .text("total:")
+      )
+      .call((text) =>
+        text
+          .append("tspan")
+          .attr("x", 0)
+          .attr("y", "0.9em")
+          
+          .text(d3.sum(_data, (d) => d.value).toLocaleString("fr-FR"))
+      );
+  }
 
   /* ------- pie slices -------*/
   svg
     .append("g")
-    .attr("fill", fillColor)
+    .attr("fill", strokeColor)
     .selectAll("path")
     .data(arcs)
     .join("path")
     .attr("fill", (d) => color(d.value))
     .attr("d", innerArc);
+
+  
   /* ------- text labels inside -------*/
-  svg
-    .append("g")
-    .attr("font-size", fontSize)
-    .selectAll("text")
-    .data(arcs)
-    .join("text")
-    .attr("transform", function (d) {
-      var pos = innerArc.centroid(d);
-      pos[0] = pos[0] - (fontSize * 0.75 * buildLabel(d).length) / 2;
-      return `translate(${pos})`;
-    })
+  if (legendType==="inside") { 
+    svg
+      .append("g")
+      .attr("font-size", fontSize)
+      .selectAll("text")
+      .data(arcs)
+      .join("text")
+      .attr("transform", function (d) {
+        var pos = innerArc.centroid(d);
+        pos[0] = pos[0] - (fontSize * 0.75 * buildLabel(d).length) / 2;
+        return `translate(${pos})`;
+      })
 
-    .attr("fill", fillColor)
-    .text((d) => buildLabel(d));
+      .attr("fill", strokeColor)
+      .text((d) => buildLabel(d));
+  }
 
-  /* ------- text labels outside -------*/
-  svg
-    .append("g")
-    .attr("font-size", fontSize)
-    .selectAll("text")
-    .data(arcs)
-    .join("text")
-    .attr("transform", function (d) {
-      var pos = outerArc.centroid(d);
-      pos[0] = radius * (isOnLeftSide(d) ? 1 : -1);
-      pos[1] = pos[1] + fontSize * 0.3;
-      return `translate(${pos})`;
-    })
-    .attr("text-anchor", (d) => (isOnLeftSide(d) ? "start" : "end"))
-    .attr("fill", fillColor)
-    .text((d) => buildLabel(d));
+  /* ------- polylines: text labels  -------*/
+   if (legendType==="polylines") { 
+    svg
+      .append("g")
+      .attr("font-size", fontSize)
+      .selectAll("text")
+      .data(arcs)
+      .join("text")
+      .attr("transform", function (d) {
+        var pos = outerArc.centroid(d);
+        pos[0] = radius * (isOnLeftSide(d) ? 1 : -1);
+        pos[1] = pos[1] + fontSize * 0.3;
+        return `translate(${pos})`;
+      })
+      .attr("text-anchor", (d) => (isOnLeftSide(d) ? "start" : "end"))
+      .attr("fill", strokeColor)
+      .text((d) => buildLabel(d));
 
-  /* ------- slice to text polylines -------*/
-  svg
-    .append("g")
-    .selectAll("polyline")
-    .data(arcs)
-    .join("polyline")
-    .attr("opacity", ".3")
-    .attr("stroke", fillColor)
-    .attr("stroke-width", "2px")
-    .attr("fill", "none")
-    .attr("points", function (d) {
-      var pos = outerArc.centroid(d);
-      pos[0] = radius * 0.95 * (isOnLeftSide(d) ? 1 : -1);
-      return [innerArc.centroid(d), outerArc.centroid(d), pos];
-    });
+    /* ------- polylines: lines joining slice to text  -------*/
+    svg
+      .append("g")
+      .selectAll("polyline")
+      .data(arcs)
+      .join("polyline")
+      .attr("opacity", ".3")
+      .attr("stroke", strokeColor)
+      .attr("stroke-width", "2px")
+      .attr("fill", "none")
+      .attr("points", function (d) {
+        var pos = outerArc.centroid(d);
+        pos[0] = radius * 0.95 * (isOnLeftSide(d) ? 1 : -1);
+        return [innerArc.centroid(d), outerArc.centroid(d), pos];
+      });
+  }
 
+  if (legendType==="outside") {
 
-const labelHeight = 18
-const legend = svg
-  .append('g')
-  .attr('transform', `translate(${radius * 2 + 20},0)`);
+    const legend = svg
+      .append('g')
+      .attr('transform', `translate(${radius  + 20},${-radius+40})`);
 
-legend
-  .selectAll(null)
-  .data(_data)
-  .enter()
-  .append('rect')
-  .attr('y', d => labelHeight * d.index * 1.8)
-  .attr('width', labelHeight)
-  .attr('height', labelHeight)
-  .attr('fill', d => color(d.value))
-  .attr('stroke', 'grey')
-  .style('stroke-width', '1px');
+    legend
+      .selectAll(null)
+      .data(arcs)
+      .enter()
+      .append('rect')
+      .attr('y', d => fontSize * d.index *1.8)
+      .attr('width', fontSize)
+      .attr('height', fontSize)
+      .attr('fill', d => color(d.value))
+      .attr('stroke', strokeColor)
+      .style('stroke-width', '1px');
 
-legend
-  .selectAll(null)
-  .data(_data)
-  .enter()
-  .append('text')
-  .text(d => d.name)
-  .attr('x', labelHeight * 1.2)
-  .attr('y', d => labelHeight * d.index * 1.8 + labelHeight)
-  .style('font-family', 'sans-serif')
-  .style('font-size', `${labelHeight}px`);
+    legend
+      .selectAll(null)
+      .data(arcs)
+      .enter()
+      .append('text')
+      .text(d=> buildLabel(d)) //d => d.name
+      .attr('x', fontSize * 1.5)
+      .attr('y', d => fontSize * d.index *1.8 +fontSize )  
+      .style('font-size', `${fontSize}px`);
+  }
 
+  // title
+   svg
+      .append('g')
+      .attr('transform', `translate(${-radius},${radius+20})`)
+      .append('text')
+      .attr("font-size", fontSize*1.5)
+      .text("Mon bon camembert AOC") //d => d.name
   return svg.node();
 }
 
