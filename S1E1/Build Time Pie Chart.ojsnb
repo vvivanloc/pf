@@ -1,0 +1,152 @@
+{
+    "id": "4ca6b3491026fc76",
+    "slug": "build-time-pie-chart",
+    "trashed": false,
+    "description": "",
+    "likes": 5,
+    "publish_level": "public",
+    "forks": 1,
+    "fork_of": {
+        "id": "50064204b82fdf22",
+        "slug": "pie-chart",
+        "title": "Pie Chart",
+        "owner": {
+            "id": "863951e3ebe4c0ae",
+            "avatar_url": "https://avatars.observableusercontent.com/avatar/5af16e327a90b2873351dda8a596c0d2d3bf954f64523deefe80177c9764d0f7",
+            "login": "d3",
+            "name": "D3",
+            "bio": "Bring your data to life.",
+            "home_url": "https://d3js.org",
+            "type": "team",
+            "tier": "pro"
+        },
+        "version": 349
+    },
+    "has_importers": false,
+    "update_time": "2020-06-07T15:34:13.123Z",
+    "first_public_version": null,
+    "paused_version": null,
+    "publish_time": "2019-11-21T03:28:47.875Z",
+    "publish_version": 849,
+    "latest_version": 849,
+    "thumbnail": "b64c8a8caa26db0012dd6c765872634f469fba50e42aa6fd59fcef6dc048024c",
+    "default_thumbnail": "b64c8a8caa26db0012dd6c765872634f469fba50e42aa6fd59fcef6dc048024c",
+    "roles": [],
+    "sharing": null,
+    "owner": {
+        "id": "9b2c88c0404c84ca",
+        "github_login": "harunene",
+        "avatar_url": "https://avatars.observableusercontent.com/avatar/dc4f388d6fa78554da548814f64aef69f72c9aa685d9cfc3023f36b9b63bab17",
+        "login": "harunene",
+        "name": "Hwang yonggi (harunene)",
+        "bio": "enjoying C++ for hobby\n",
+        "home_url": "",
+        "type": "individual",
+        "tier": "pro"
+    },
+    "creator": {
+        "id": "9b2c88c0404c84ca",
+        "github_login": "harunene",
+        "avatar_url": "https://avatars.observableusercontent.com/avatar/dc4f388d6fa78554da548814f64aef69f72c9aa685d9cfc3023f36b9b63bab17",
+        "login": "harunene",
+        "name": "Hwang yonggi (harunene)",
+        "bio": "enjoying C++ for hobby\n",
+        "home_url": "",
+        "tier": "pro"
+    },
+    "authors": [
+        {
+            "id": "9b2c88c0404c84ca",
+            "avatar_url": "https://avatars.observableusercontent.com/avatar/dc4f388d6fa78554da548814f64aef69f72c9aa685d9cfc3023f36b9b63bab17",
+            "name": "Hwang yonggi (harunene)",
+            "login": "harunene",
+            "bio": "enjoying C++ for hobby\n",
+            "home_url": "",
+            "github_login": "harunene",
+            "tier": "pro",
+            "approved": true,
+            "description": ""
+        }
+    ],
+    "collections": [],
+    "files": [],
+    "comments": [],
+    "commenting_lock": null,
+    "suggestion_from": null,
+    "suggestions_to": [],
+    "version": 849,
+    "title": "Build Time Pie Chart",
+    "license": null,
+    "copyright": "",
+    "nodes": [
+        {
+            "id": 0,
+            "name": null,
+            "value": "md`# Build Time Pie Chart\n`",
+            "pinned": false,
+            "mode": "js",
+            "data": null,
+            "outputs": []
+        },
+        {
+            "id": 192,
+            "name": null,
+            "value": "data = d3.csvParse(`name,value\na, 60\nb, 60\nc, 180\nd, 1020\ne, 46\nf, 420\ng, 186\nh, 36\ni, 22\nj, 340\n`, d3.autoType)",
+            "pinned": true,
+            "mode": "js",
+            "data": null,
+            "outputs": []
+        },
+        {
+            "id": 719,
+            "name": null,
+            "value": "/** returns the midangle */\nmidAngle = function(startAngle,endAngle){\n  return startAngle + (endAngle - startAngle)/2;\n}",
+            "pinned": false,
+            "mode": "js",
+            "data": null,
+            "outputs": []
+        },
+        {
+            "id": 35,
+            "name": null,
+            "value": "color = d3.scaleOrdinal()\n    .domain(data.map(d => d.name))\n    .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse())",
+            "pinned": false,
+            "mode": "js",
+            "data": null,
+            "outputs": []
+        },
+        {
+            "id": "00b86b23-5bd4-4c5f-bc39-5f68ec5bb4dc",
+            "name": "",
+            "value": "/* WSL recommended sorting for pie chart */\nMyWSJPieSorting = function(myArray){ let WSJproportion = [myArray[0]]\n    .concat(myArray.slice(2).reverse())\n    .concat(myArray[1]);\n  return WSJproportion;\n} ",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": 17,
+            "name": null,
+            "value": "chart = {\n  const pie = d3.pie()\n    .sort(null)\n    .value(d => d.value)\n\n\n  const _data = MyWSJPieSorting(data)\n  const arcs = pie(_data);\n  // const arcs = pie((data));\n  \n  const height = Math.min(width, 400);\n\n  const isOnLeftSide = (d) => midAngle(d.startAngle, d.endAngle) < Math.PI ;\n  const fontSize = 15;\n  const buildLabel = (d)=> `${d.data.name}: ${(d.data.value).toLocaleString(\"fr-FR\")}`;\n\n  const svg = d3.create(\"svg\")\n      .attr(\"viewBox\", [-width / 2, -height / 2, width, height]);\n  \n  const radius = Math.min(width, height) / 2;\n  \n  const donut = false;\n  var innerArc = d3.arc()\n    .outerRadius(radius * 0.8)\n    .innerRadius(radius * donut?0.4:0.0);\n  var outerArc = d3.arc()\n    .innerRadius(radius * 0.9)\n    .outerRadius(radius * 0.9);\n  \n  /* ----- total ------ */\n  svg.append(\"g\")\n      .attr(\"font-family\", \"sans-serif\")\n      .attr(\"font-size\", 24)\n      .attr(\"text-anchor\", \"middle\")\n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\"  )    \n    .append(\"text\")\n    \n    .call(text => text.append(\"tspan\")\n          .attr(\"y\", \"-0.4em\")\n          .attr(\"font-weight\", \"bold\")\n          .text(\"total\"))\n    .call(text => text.append(\"tspan\")\n          .attr(\"x\", 0)\n          .attr(\"y\", \"0.9em\")\n          .attr(\"font-weight\", \"bold\")\n          .text((d3.sum(data, d => d.value)).toLocaleString(\"fr-FR\")))\n  \n  \n  /* ------- pie slices -------*/\n  svg.append(\"g\")\n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\"  )    \n    .selectAll(\"path\")\n    .data(arcs)\n    .join(\"path\")\n      .attr(\"fill\", d => color(d.data.name))\n      .attr(\"d\", innerArc)\n  /* ------- text labels inside -------*/\n  svg.append(\"g\")      \n      .attr(\"font-size\", fontSize)\n      \n    .selectAll(\"text\")\n    .data(arcs)\n    .join(\"text\")\n\t\t.attr(\"transform\", function(d) {\n      \n      var pos = innerArc.centroid(d);\n      pos[0]=pos[0]-fontSize*0.75*buildLabel(d).length/2\n      return `translate(${pos})`;\n\t\t})\n    \n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\" )\n    .text(d=>buildLabel(d))\n  \n  /* ------- text labels outside -------*/\n  svg.append(\"g\")      \n      .attr(\"font-size\", fontSize)\n      \n    .selectAll(\"text\")\n    .data(arcs)\n    .join(\"text\")\n\t\t.attr(\"transform\", function(d) {\n      \n      var pos = outerArc.centroid(d);\n      pos[0] = radius * (isOnLeftSide(d) ? 1 : -1);\n      pos[1]= pos[1]+fontSize*0.3\n      return `translate(${pos})`;\n\t\t})\n    .attr(\"text-anchor\", d => isOnLeftSide(d) ? \"start\" : \"end\")\n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\"  )\n    .text(d=>buildLabel(d))\n  \n  \n  /* ------- slice to text polylines -------*/\n  svg.append(\"g\")\n    .selectAll(\"polyline\")\n    .data(arcs)\n    .join(\"polyline\")\n      .attr(\"opacity\", \".3\")\n      .attr(\"stroke\",  mode === \"dark\" ? \"white\": \"lightsteelblue\"  )    \n      .attr(\"stroke-width\", \"2px\")\n      .attr(\"fill\", \"none\")\n      .attr(\"points\", function(d){\n        var pos = outerArc.centroid(d);\n        pos[0] = radius * 0.95 * (isOnLeftSide(d) ? 1 : -1);\n        return [innerArc.centroid(d), outerArc.centroid(d), pos];\n      });\n\n \n  return svg.node();\n}",
+            "pinned": false,
+            "mode": "js",
+            "data": null,
+            "outputs": []
+        },
+        {
+            "id": "807485ce-8439-4147-b853-3d4b15ce60ed",
+            "name": "",
+            "value": "mode = Generators.observe(notify => {\n  const query = matchMedia(\"(prefers-color-scheme: dark)\");\n  const changed = () => notify(query.matches ? \"dark\" : \"light\");\n  changed();\n  query.addListener(changed);\n  return () => query.removeListener(changed);\n})",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": 6,
+            "name": null,
+            "value": "d3 = require(\"d3@5\")",
+            "pinned": false,
+            "mode": "js",
+            "data": null,
+            "outputs": []
+        }
+    ],
+    "resolutions": []
+}

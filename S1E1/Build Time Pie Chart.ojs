@@ -1,0 +1,226 @@
+md`
+# Pie Chart
+`;
+
+d3 = require("d3@5");
+
+data = d3.csvParse(
+`name,value
+a, 60
+b, 60
+c, 180
+d, 1020
+e, 46
+f, 420
+g, 186
+h, 36
+i, 22
+j, 340
+`,
+  d3.autoType
+);
+
+
+/** returns the midangle */
+midAngle = function (startAngle, endAngle) {
+  return startAngle + (endAngle - startAngle) / 2;
+};
+
+
+
+/*
+theme = Generators.observe((notify) => {
+  const query = matchMedia("(prefers-color-scheme: dark)");
+  const changed = () => notify(query.matches ? "dark" : "light");
+  changed();
+  query.addListener(changed);
+  return () => query.removeListener(changed);
+});
+*/
+
+theme = "light"
+
+fillColor = theme === "dark" ? "white" : "black"
+
+
+/* WSL recommended sorting for pie chart */
+MyWSJPieSorting = function (array) {
+  let WSJproportion = [array[0]]
+    .concat(array.slice(2).reverse())
+    .concat(array[1]);
+  return WSJproportion;
+};
+
+chart = {
+  const pie = d3
+    .pie()
+    .value((d) => d.value);
+
+  let _data = JSON.parse(JSON.stringify(data));
+
+  //_data = _data.sort((a, b) => d3.ascending(a.name, b.name))
+  _data = _data.sort((a, b) => d3.descending(a.value,b.value))
+  const nbMaxSlices = 3;
+  _data = _data.slice(0,nbMaxSlices).concat([{name: "other", value:_data.slice(nbMaxSlices,_data.length-1).reduce((accum,d)=>accum+d.value,0)}])
+   //_data.slice().sort((a, b) => d3.descending(a.value, b.value))
+  // let _data = MyWSJPieSorting(data);
+  /*
+  _data = _data.slice(0,3)
+  _data*/
+
+  const color = d3
+  .scaleOrdinal()
+  .domain(_data.map((d) => d.value))
+  .range(
+    d3
+      /*.quantize((t) => d3.interpolateSpectral(t * 0.8 + 0.1), data.length)
+      .reverse()*/
+    /*  .quantize((t) => d3.interpolateRgb("red", "blue")(t * 0.8 + 0.1), data.length)*/
+    /*.quantize((t) => d3.interpolateHslLong("red", "blue")(t), data.length)*/
+    /*.quantize((t) => d3.interpolateViridis(t), _data.length)*/
+    .quantize((t) => d3.interpolateViridis(t), nbMaxSlices).concat("grey")
+  );
+
+  const arcs = pie(_data);
+
+  const height = Math.min(width, 400);
+
+  const isOnLeftSide = (d) => midAngle(d.startAngle, d.endAngle) < Math.PI;
+  const fontSize = 15;
+  const buildLabel = (d) =>
+    `${d.data.name}: ${d.data.value.toLocaleString("fr-FR")}`;
+
+  const svg = d3
+    .create("svg")
+    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+
+  const radius = Math.min(width, height) / 2;
+
+  const donut = false;
+  var innerArc = d3
+    .arc()
+    .outerRadius(radius * 0.8)
+    .innerRadius(radius * donut ? 0.4 : 0.0);
+  var outerArc = d3
+    .arc()
+    .innerRadius(radius * 0.9)
+    .outerRadius(radius * 0.9);
+
+  /* ----- total ------ */
+  svg
+    .append("g")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 24)
+    .attr("text-anchor", "middle")
+    .attr("fill", fillColor)
+    .append("text")
+
+    .call((text) =>
+      text
+        .append("tspan")
+        .attr("y", "-0.4em")
+        .attr("font-weight", "bold")
+        .text("total")
+    )
+    .call((text) =>
+      text
+        .append("tspan")
+        .attr("x", 0)
+        .attr("y", "0.9em")
+        .attr("font-weight", "bold")
+        .text(d3.sum(_data, (d) => d.value).toLocaleString("fr-FR"))
+    );
+
+  /* ------- pie slices -------*/
+  svg
+    .append("g")
+    .attr("fill", fillColor)
+    .selectAll("path")
+    .data(arcs)
+    .join("path")
+    .attr("fill", (d) => color(d.value))
+    .attr("d", innerArc);
+  /* ------- text labels inside -------*/
+  svg
+    .append("g")
+    .attr("font-size", fontSize)
+    .selectAll("text")
+    .data(arcs)
+    .join("text")
+    .attr("transform", function (d) {
+      var pos = innerArc.centroid(d);
+      pos[0] = pos[0] - (fontSize * 0.75 * buildLabel(d).length) / 2;
+      return `translate(${pos})`;
+    })
+
+    .attr("fill", fillColor)
+    .text((d) => buildLabel(d));
+
+  /* ------- text labels outside -------*/
+  svg
+    .append("g")
+    .attr("font-size", fontSize)
+    .selectAll("text")
+    .data(arcs)
+    .join("text")
+    .attr("transform", function (d) {
+      var pos = outerArc.centroid(d);
+      pos[0] = radius * (isOnLeftSide(d) ? 1 : -1);
+      pos[1] = pos[1] + fontSize * 0.3;
+      return `translate(${pos})`;
+    })
+    .attr("text-anchor", (d) => (isOnLeftSide(d) ? "start" : "end"))
+    .attr("fill", fillColor)
+    .text((d) => buildLabel(d));
+
+  /* ------- slice to text polylines -------*/
+  svg
+    .append("g")
+    .selectAll("polyline")
+    .data(arcs)
+    .join("polyline")
+    .attr("opacity", ".3")
+    .attr("stroke", fillColor)
+    .attr("stroke-width", "2px")
+    .attr("fill", "none")
+    .attr("points", function (d) {
+      var pos = outerArc.centroid(d);
+      pos[0] = radius * 0.95 * (isOnLeftSide(d) ? 1 : -1);
+      return [innerArc.centroid(d), outerArc.centroid(d), pos];
+    });
+
+
+const labelHeight = 18
+const legend = svg
+  .append('g')
+  .attr('transform', `translate(${radius * 2 + 20},0)`);
+
+legend
+  .selectAll(null)
+  .data(_data)
+  .enter()
+  .append('rect')
+  .attr('y', d => labelHeight * d.index * 1.8)
+  .attr('width', labelHeight)
+  .attr('height', labelHeight)
+  .attr('fill', d => color(d.value))
+  .attr('stroke', 'grey')
+  .style('stroke-width', '1px');
+
+legend
+  .selectAll(null)
+  .data(_data)
+  .enter()
+  .append('text')
+  .text(d => d.name)
+  .attr('x', labelHeight * 1.2)
+  .attr('y', d => labelHeight * d.index * 1.8 + labelHeight)
+  .style('font-family', 'sans-serif')
+  .style('font-size', `${labelHeight}px`);
+
+  return svg.node();
+}
+
+
+
+

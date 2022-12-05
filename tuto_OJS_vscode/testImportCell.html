@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@hpcc-js/observablehq-compiler/dist/index.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/@observablehq/runtime/dist/runtime.umd.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@hpcc-js/observablehq-compiler/dist/index.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script>
+      var compilerMod = window["@hpcc-js/observablehq-compiler"];
+    </script>
+  </head>
+
+  <body>
+    <div id="placeholder" class="observablehq-root"></div>
+    <script type="module">
+      const notebook = {
+        files: [],
+        nodes: [
+          {
+            id: 0,
+            mode: "js",
+            value: "md`\n# A Taste of Observable\n`;",
+          },
+          {
+            id: 1,
+            mode: "js",
+            value:
+              "md`\nHello and welcome to Observable! 👋 We're glad you decided to create an account. Here we'll show you the basics of Observable, cover a few key concepts, and get you started.\n`;",
+          },
+          {
+            id: 2,
+            mode: "js",
+            value:
+              "md`\n**What you are reading now—this page or document—is an Observable notebook.**\n`;",
+          },
+          {
+            id: 3,
+            mode: "js",
+            value:
+              "md`\nA notebook is both a final product for presentation, and a large blank canvas for trying out ideas and calculations. How do you start? By creating **cells**. Cells are where you place content—text, JavaScript code, or other instructions.\n`;",
+          },
+          {
+            id: 4,
+            mode: "js",
+            value: "A_sample_JavaScript_cell_yielding_a_result = 22/7",
+          },
+          {
+            id: 5,
+            mode: "js",
+            value: "md`\n**Notebooks are made of cells.** Another sample:\n`;",
+          },
+          {
+            id: 6,
+            mode: "js",
+            value:
+              'md`\n"Hello, I am a *Markdown* cell; I contain *formatted* **text**. My edit area (the shaded part) is pinned open so you can see it."\n`;',
+            start: 654,
+            end: 790,
+          },
+          {
+            id: 7,
+            mode: "js",
+            value:
+              "md`\n**A cell's code or content is in the shaded area; the results display immediately above.**\n`;",
+            start: 792,
+            end: 889,
+          },
+          {
+            id: 8,
+            mode: "js",
+            value:
+              "md`\nEvery cell in an Observable notebook is editable. To display the shaded edit area, click in the left margin. **Try it** on this cell. Then try it on that cell with the (approximate) value of \\`pi\\`.\n`;",
+            start: 891,
+            end: 1096,
+          },
+          {
+            id: 9,
+            mode: "js",
+            value:
+              "md`\nCells, because they are easily created, viewed, and modified, are a fundamental part of what makes Observable an environment for *trying out* ideas.\n`;",
+            start: 1098,
+            end: 1253,
+          },
+          {
+            id: 10,
+            mode: "js",
+            value:
+              "md`\n#### Try it\n1. Mouse over the left margin until you see a plus sign (+), then **click the plus sign (+) to create a new cell**.\nYou'll see a menu of new cell choices appear. Notice the first three choices are JavaScript, **Markdown** (we'll use this one), and HTML.\n2. **Use the mouse, or up and down arrow keys, to pick the cell type** (pick **Markdown** for now), then type some text.\n3. **Click the blue triangle (or type Shift-Return) to finish and run the cell**.\n`;",
+            start: 1255,
+            end: 1730,
+          },
+          {
+            id: 11,
+            mode: "js",
+            value:
+              "md`\nCongratulations! You've created your first Observable cell.\n`;",
+            start: 1732,
+            end: 1798,
+          },
+          {
+            id: 12,
+            mode: "js",
+            value:
+              "md`\nWhen you created that cell, you saw the most common cell types:\n`;",
+            start: 1800,
+            end: 1870,
+          },
+          {
+            id: 13,
+            mode: "js",
+            value:
+              "md`\n- JavaScript cells (the default), for logic, calculations, and calls to JavaScript libraries\n- [Markdown](https://observablehq.com/@observablehq/markdown-quick-reference) cells for text\n- HTML cells, for HTML\n`;",
+            start: 1872,
+            end: 2087,
+          },
+          {
+            id: 14,
+            mode: "js",
+            value:
+              "md`\n(**To move a cell**, move your pointer over the three vertical dots symbol, and then drag the cell to the spot you want.)\n`;",
+            start: 2089,
+            end: 2217,
+          },
+          {
+            id: 15,
+            mode: "js",
+            value:
+              "md`\nYou also saw a lot of other choices under the [add cell menu](https://observablehq.com/@observablehq/adding-cells). Many of these choices will create sample charts, buttons, or other visual elements, using JavaScript code. \n\nLet's do some work with JavaScript cells now. (It doesn't matter if you're a JavaScript beginner; you'll see why in a moment.) \n`;",
+            start: 2219,
+            end: 2578,
+          },
+          {
+            id: 16,
+            mode: "js",
+            value:
+              "md`\nHere is a JavaScript cell that displays data in a table:\n`;",
+          },
+          {
+            id: 17,
+            mode: "js",
+            value: "Inputs.table(data)",
+          },
+          {
+            id: 18,
+            mode: "js",
+            value:
+              "md`\nHow could you have created this table yourself? Well, after attaching the file (more on that in just a bit), you could have just selected the table input from the add cell menu.\n`;",
+            start: 2665,
+            end: 2849,
+          },
+          {
+            id: 19,
+            mode: "js",
+            value:
+              'md`\n#### Try it\n1. Create a new JavaScript cell by clicking the plus sign (+).\n2. Type "table". You will see several choices.\n3. Scroll down (skip over Data Table) and click **Table** under the heading of **Inputs** to paste in the Table input code.\n`;',
+            start: 2851,
+            end: 3103,
+          },
+          {
+            id: 20,
+            mode: "js",
+            value:
+              'html`\n<figure>\n  <img\n    style="border-radius:2px;box-shadow:0 4px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0, 0, 0, 0.1);margin-left:27px;margin-bottom:40px;max-width: 225px"\n    src=\\${await FileAttachment(/* "tableFromAddCellMenu.png" */"https://static.observableusercontent.com/files/d491674ec5a71d9db82da17da8171aa9c11023b21fc6635fa5ee0b9d8cd7aec1722122655346d6611bc7576eac35367490f67fb54459dae60949c1eea22aec3b").url()}\n  />\n  <figcaption>Choose the <b>Table</b> menu item that appears under <b>Inputs</b>.</figcaption>\n</figure>\n`;',
+            start: 3105,
+            end: 3641,
+          },
+          {
+            id: 21,
+            mode: "js",
+            value:
+              "md`\nBe sure to click the blue triangle, or type Shift-Enter, to see the results.\n`;",
+            start: 3643,
+            end: 3726,
+          },
+          {
+            id: 22,
+            mode: "js",
+            value:
+              "md`\nYou may have noticed that the inserted code is not exactly the same as the example; the example shows the simplest case.\n`;",
+            start: 3728,
+            end: 3855,
+          },
+          {
+            id: 23,
+            mode: "js",
+            value:
+              "md`\nNow, the more you learn about JavaScript the better; we're not going to pretend otherwise. But as we said earlier, Observable is a great place to try things out, to grab things from the add cell menu and see how they work. Or, you can look at cells in other people's notebooks to see what solutions they came up with.\n`;",
+            start: 3857,
+            end: 4181,
+          },
+          {
+            id: 24,
+            mode: "js",
+            value:
+              'md`\nLet\'s close the loop on attaching files: **To attach a file to a notebook, use the Data icon** <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke-width="2"><path d="M7.19855 2.52175L7.88131 1.79111L7.19855 2.52175ZM12.6 11.7764L13.2581 11.0234L12.6 11.7764ZM5.34191 6.76078L11.9419 12.5293L13.2581 11.0234L6.65809 5.2549L5.34191 6.76078ZM10.8958 13.6864L3.35462 6.63385L1.98852 8.09459L9.52965 15.1472L10.8958 13.6864ZM6.51578 3.25238L13.8172 10.0755L15.1828 8.61419L7.88131 1.79111L6.51578 3.25238ZM3.08395 3.55474C3.91017 2.45311 5.50967 2.31219 6.51578 3.25238L7.88131 1.79111C6.0058 0.0384695 3.02413 0.301162 1.48395 2.35474L3.08395 3.55474ZM3.35462 6.63385C2.49183 5.82695 2.37516 4.49978 3.08395 3.55474L1.48395 2.35474C0.162683 4.11642 0.380169 6.59044 1.98852 8.09459L3.35462 6.63385ZM11.993 13.6551C11.6977 13.9647 11.2082 13.9786 10.8958 13.6864L9.52965 15.1472C10.6432 16.1886 12.3878 16.1388 13.4402 15.0356L11.993 13.6551ZM11.9419 12.5293C12.2764 12.8216 12.2996 13.3337 11.993 13.6551L13.4402 15.0356C14.5328 13.8903 14.4499 12.0651 13.2581 11.0234L11.9419 12.5293Z" fill="currentColor"></path></svg></button> in the upper-right of the notebook (then click the plus sign next to **File attachments**). For the Olympic data, we attached the file ahead of time (data credit to [Matt Riggott](https://www.flother.is/blog/olympic-games-data/)).\n`;',
+            start: 4183,
+            end: 5561,
+          },
+          {
+            id: 25,
+            mode: "js",
+            value:
+              "md`\nAfter attaching the file, we used the \\`FileAttachment\\` function (a very useful bit of code) to recognize the attached file as a \\`.csv\\` file.\n`;",
+            start: 5563,
+            end: 5714,
+          },
+          {
+            id: 26,
+            mode: "js",
+            value:
+              'data = FileAttachment(/* "athletes.csv" */"https://static.observableusercontent.com/files/31ca24545a0603dce099d10ee89ee5ae72d29fa55e8fc7c9ffb5ded87ac83060d80f1d9e21f4ae8eb04c1e8940b7287d179fe8060d887fb1f055f430e210007c").csv({typed: true})',
+            start: 5716,
+            end: 5955,
+          },
+          {
+            id: 27,
+            mode: "js",
+            value:
+              "md`\nYou could also have attached an \\`.xlsx\\`, GIF, \\`.json\\`, or any other type of file; the [File Attachments](https://observablehq.com/@observablehq/file-attachments) notebook explains all the details. \n`;",
+            start: 5957,
+            end: 6165,
+          },
+          {
+            id: 28,
+            mode: "js",
+            value:
+              "md`\nAfter attaching a file and viewing its data in a table, the natural next step is to plot the data. Let's look at a scatterplot based on the \\`athletes.csv\\` data:\n`;",
+            start: 6167,
+            end: 6336,
+          },
+          {
+            id: 29,
+            mode: "js",
+            value:
+              'Plot.plot({\n  marks: [\n    Plot.dot(data, {x: "weight", y: "height", stroke: "sex"})\n  ]\n})',
+            start: 6338,
+            end: 6429,
+          },
+          {
+            id: 30,
+            mode: "js",
+            value:
+              'md`\nHow can you create this scatterplot yourself? Type "scatterplot" into the add cell menu.\n`;',
+            start: 6431,
+            end: 6526,
+          },
+          {
+            id: 31,
+            mode: "js",
+            value:
+              'html`\n<figure>\n  <img\n    style="border-radius:2px;box-shadow:0 4px 12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0, 0, 0, 0.1);margin-left:27px;margin-bottom:40px;max-width: 225px"\n    src=\\${await FileAttachment(/* "scatterplotFromAddCellMenu.png" */"https://static.observableusercontent.com/files/d1c13576bbeaeecfbb8446b341b3caa16a9d6985ded7714ffb6f235267083ff80bc9a48b10d510cacde4fec46df310859b3a23220a36d4d796a9b924313d8524").url()}\n  />\n  <figcaption>Choose the <b>Scatterplot chart</b> menu item that appears under <b>Plot</b>.</figcaption>\n</figure>\n`;',
+            start: 6528,
+            end: 7080,
+          },
+          {
+            id: 32,
+            mode: "js",
+            value:
+              'md`\n#### Try it\n1. Create a new JavaScript cell by clicking the plus sign.\n2. Start typing "scatterplot" (you won\'t have to type the entire word). The **Scatterplot chart** menu item appears.\n3. Click **Scatterplot chart** to paste in the Scatterplot chart code.\n4. Edit the \\`Plot.dot\\` line to resemble the code in the example.\n5. Be sure to click the blue triangle, or type Shift-Return, to see the results.\n`;',
+            start: 7082,
+            end: 7495,
+          },
+          {
+            id: 33,
+            mode: "js",
+            value: "md`\nLet's try one more thing with the scatterplot.\n`;",
+            start: 7497,
+            end: 7550,
+          },
+          {
+            id: 34,
+            mode: "js",
+            value:
+              'md`\n#### Try it\nTry changing the definition of \\`stroke\\` to "weight" instead of "sex". What happens? (Don\'t forget to click the blue triangle or type Shift-Enter.)\n`;',
+            start: 7552,
+            end: 7719,
+          },
+          {
+            id: 35,
+            mode: "js",
+            value:
+              "md`\nAha! So the scatterplot is not just a static display, not just an included screenshot from some other graphic program: It can react to changes.\n`;",
+            start: 7721,
+            end: 7871,
+          },
+          {
+            id: 36,
+            mode: "js",
+            value:
+              "md`\n**Observable cells are reactive; they can update based on new data or user input.**\n`;",
+            start: 7873,
+            end: 7963,
+          },
+          {
+            id: 37,
+            mode: "js",
+            value:
+              "md`\nThis works because of the way Observable uses [dataflow](https://observablehq.com/@observablehq/how-observable-runs) to determine which values are dependent on others, and recalculates as needed (like a spreadsheet).\n`;",
+            start: 7965,
+            end: 8188,
+          },
+          {
+            id: 38,
+            mode: "js",
+            value:
+              "md`\nThe real magic 🧙‍♀️ comes when you add **interactivity**. If you use \\`viewof\\` with an [input](/@observablehq/inputs), you can quickly provide an interactive UI.\n`;",
+            start: 8190,
+            end: 8360,
+          },
+          {
+            id: 39,
+            mode: "js",
+            value:
+              'viewof myColorScheme = Inputs.select(["rdbu", "piyg", "puor", "spectral", "blues", "reds", "warm", "cool"], {label: "Color scheme"})',
+            start: 8362,
+            end: 8494,
+          },
+          {
+            id: 40,
+            mode: "js",
+            value:
+              'Plot.plot({\n  color: {\n    type: "diverging",\n    scheme: myColorScheme,\n    reverse: true\n  },\n  marks: [\n    Plot.dot(data, {x: "weight", y: "height", stroke: "weight"})\n  ]\n})',
+            start: 8496,
+            end: 8674,
+          },
+          {
+            id: 41,
+            mode: "js",
+            value:
+              "md`\nUse the drop-down list to pick a color scheme, and watch the scatterplot change color. Thanks to dataflow, the scatterplot automatically re-runs when its inputs change! \n`;",
+            start: 8676,
+            end: 8852,
+          },
+          {
+            id: 42,
+            mode: "js",
+            value:
+              "md`\nOne final **Try it**, if you want to save everything you've created so far in this notebook:\n1. Scroll to the top of the browser window.\n2. Click the notebook menu button (**...**).\n3. Click **Fork**. This creates a copy of the notebook under your account. You can then modify the forked copy as much as you like.\n4. Bookmark the URL for the fork for convenience (although you can always find it under the **Notebooks** link for your account).\n`;",
+            start: 8854,
+            end: 9304,
+          },
+          {
+            id: 43,
+            mode: "js",
+            value:
+              "md`\nThat was just a taste of Observable. There is a lot more:\n- [Adding cells](https://observablehq.com/@observablehq/adding-cells): More about the add cell menu\n- Importing from [\\`.xlsx\\` files](https://observablehq.com/@observablehq/xlsx)\n- [Fetching from a URL or querying a database](/@observablehq/introduction-to-data)\n- Using pre-packaged [templates](https://observablehq.com/templates)\n- [Importing](https://observablehq.com/@observablehq/introduction-to-imports?collection=@observablehq/notebook-fundamentals) functionality in named cells from other notebooks\n- [Embedding](https://observablehq.com/@observablehq/introduction-to-embedding) results into a Web page for others\n- Using [promises](https://observablehq.com/@observablehq/introduction-to-promises?collection=@observablehq/javascript-in-observable) and *await* to handle asynchronous values\n- Using [generators](https://observablehq.com/@observablehq/introduction-to-generators?collection=@observablehq/javascript-in-observable) in combination with [promises](https://observablehq.com/@observablehq/introduction-to-promises?collection=@observablehq/javascript-in-observable) for interactive views \n\n`;",
+            start: 9306,
+            end: 10477,
+          },
+          {
+            id: 44,
+            mode: "js",
+            value:
+              "md`\nAs you explore and learn, don't worry if you feel you are going slowly. Experienced users will tell you how much faster Observable is to use now, but you should still go at your own pace in terms of learning. We want you to make Observable part of your standard toolkit, not something that you bring out only for special occasions.\n`;",
+            start: 10479,
+            end: 10817,
+          },
+          {
+            id: 45,
+            mode: "js",
+            value:
+              'md`\n### Observable speed tips\nWhen you *are* up to speed and want to move more quickly, the following tips will help:\n- Run the current cell: \\${keys("Shift-Enter")}\n- Create a new cell after the current cell: \\${keys("Mod-Enter")}.\n- Undo the last change: \\${keys("Mod-Z")}\n- Delete cells: \\${keys("Alt-Backspace")}\n\n`;',
+            start: 10819,
+            end: 11139,
+          },
+          {
+            id: 46,
+            mode: "js",
+            value:
+              "md`\n- Other keyboard shortcuts are [here](https://observablehq.com/@observablehq/keyboard-shortcuts).\n- You can read what type a cell is from the symbol in the left margin of the edit area.\n- When editing a Markdown cell, common formatting commands appear as buttons in the cell toolbar (at the bottom of the browser window).\n- Reminder sheet of the basics: [Getting Started](https://observablehq.com/@observablehq/getting-started).\n`;",
+            start: 11141,
+            end: 11576,
+          },
+          {
+            id: 47,
+            mode: "js",
+            value:
+              'md`\nTo learn 🤔 more, open the <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="position: relative; top: 0.2em;"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="2"></circle><path d="M4.92682 6.10635H6.98981C7.00885 5.49063 7.4278 5.08438 8.03717 5.08438C8.63385 5.08438 9.0528 5.43985 9.0528 5.95401C9.0528 6.5126 8.83063 6.77921 7.96735 7.28702C7.08502 7.79483 6.76764 8.36612 6.88824 9.45157L6.90729 9.70547H8.88776V9.40714C8.88776 8.81046 9.12897 8.52481 9.9986 8.02335C10.9317 7.4838 11.3697 6.83633 11.3697 5.89688C11.3697 4.37344 10.1129 3.35782 8.18317 3.35782C6.15192 3.35782 4.94586 4.44327 4.92682 6.10635ZM7.95465 12.8222C8.7735 12.8222 9.24957 12.3969 9.24957 11.6669C9.24957 10.9306 8.7735 10.5053 7.95465 10.5053C7.1358 10.5053 6.65338 10.9306 6.65338 11.6669C6.65338 12.3969 7.1358 12.8222 7.95465 12.8222Z" fill="currentColor"></path></svg> help pane in the right margin, where you’ll find our quick guides. Also, see our [Documentation main page](https://observablehq.com/@observablehq/documentation), and **Learning more** immediately following.\n\nExplore, learn, and have fun! 👋\n`;',
+            start: 11578,
+            end: 12712,
+          },
+          {
+            id: 48,
+            mode: "js",
+            value: "md`\n## Learning more\n`;",
+            start: 12714,
+            end: 12737,
+          },
+          {
+            id: 49,
+            mode: "js",
+            value:
+              'md`\nDifferent folks have different learning styles, so in addition to the <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="position: relative; top: 0.2em;"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="2"></circle><path d="M4.92682 6.10635H6.98981C7.00885 5.49063 7.4278 5.08438 8.03717 5.08438C8.63385 5.08438 9.0528 5.43985 9.0528 5.95401C9.0528 6.5126 8.83063 6.77921 7.96735 7.28702C7.08502 7.79483 6.76764 8.36612 6.88824 9.45157L6.90729 9.70547H8.88776V9.40714C8.88776 8.81046 9.12897 8.52481 9.9986 8.02335C10.9317 7.4838 11.3697 6.83633 11.3697 5.89688C11.3697 4.37344 10.1129 3.35782 8.18317 3.35782C6.15192 3.35782 4.94586 4.44327 4.92682 6.10635ZM7.95465 12.8222C8.7735 12.8222 9.24957 12.3969 9.24957 11.6669C9.24957 10.9306 8.7735 10.5053 7.95465 10.5053C7.1358 10.5053 6.65338 10.9306 6.65338 11.6669C6.65338 12.3969 7.1358 12.8222 7.95465 12.8222Z" fill="currentColor"></path></svg> help pane, see our videos or tutorials:\n- [Videos](https://observablehq.com/collection/@observablehq/learning-observable)\n- [Tutorials](https://observablehq.com/tutorials)\n`;',
+            start: 12739,
+            end: 13847,
+          },
+          {
+            id: 50,
+            mode: "js",
+            value:
+              "md`\nWe also have introductory tutorial sequences designed for folks with different past experiences:\n`;",
+            start: 13849,
+            end: 13952,
+          },
+          {
+            id: 51,
+            mode: "js",
+            value:
+              "md`\n- **[Observable Plot](https://observablehq.com/@observablehq/plot?collection=@observablehq/plot)**<br>Many of the examples you saw above come from [Observable Plot](https://observablehq.com/@observablehq/plot), a free, open-source JavaScript library for quickly visualizing tabular data. It's ideal for exploring data you've already collected and for gleaning insights from that data.\n  \n- **[Observable for Jupyter Users](/@observablehq/observable-for-jupyter-users?collection=@observablehq/observable-for-jupyter-users)**<br> If you have a Python data science background, or just feel more comfortable in Python than in JavaScript, these tutorials will help ease you in.\n\n- **[Learn D3](/@d3/learn-d3)**<br>  D3 is a powerful JavaScript library that helps you bring data to life using HTML, SVG, and CSS. If you already have some D3 under your belt, you'll find using D3 in Observable is a little bit different. Whether you're new to D3, Observable, or both, get your feet wet here.\n`;",
+            start: 13954,
+            end: 14945,
+          },
+          {
+            id: 52,
+            mode: "js",
+            value:
+              "md`\nFor the latest inspiring work being done by the Observable community, check out the [Explore](https://observablehq.com/explore) page.\n`;",
+            start: 14947,
+            end: 15087,
+          },
+          {
+            id: 53,
+            mode: "js",
+            value:
+              "md`\n*(Thanks to Jeremy Ashkenas, who created the original version of this notebook!)*\n`;",
+            start: 15089,
+            end: 15177,
+          },
+          {
+            id: 54,
+            mode: "js",
+            value: "md`\n## Appendix\n`;",
+            start: 15179,
+            end: 15197,
+          },
+          {
+            id: 55,
+            mode: "js",
+            value:
+              "md`\n(This is an area for code used in the rest of the notebook.)\n`;",
+            start: 15199,
+            end: 15266,
+          },
+          {
+            id: 56,
+            mode: "js",
+            value:
+              'async function icon2(file, {width = "16px"} = {}) {\n  const src = await file.url();\n  return () => htl.html`<img style=${{width, borderRadius: "50%", verticalAlign: "center"}} src=${src}>`;\n}',
+            start: 15268,
+            end: 15459,
+          },
+          {
+            id: 57,
+            mode: "js",
+            value:
+              'keys = s => html`<span style="font-family:var(--sans-serif);font-size:90%;">${keysText(s)}`',
+            start: 15461,
+            end: 15552,
+          },
+          {
+            id: 58,
+            mode: "js",
+            value: 'import {keys as keysText, mac} from "@mbostock/keys"',
+            start: 15554,
+            end: 15606,
+          },
+        ],
+      };
+      const placeholder = document.getElementById("placeholder");
+      const compiledNB = await compilerMod.compile(notebook);
+      const library = new observablehq.Library();
+      const runtime = new observablehq.Runtime(library);
+      compiledNB(runtime, (name) => {
+        const div = document.createElement("div");
+        placeholder.appendChild(div);
+        return new observablehq.Inspector(div);
+      });
+    </script>
+  </body>
+</html>
