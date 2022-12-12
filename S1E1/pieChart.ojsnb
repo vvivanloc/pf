@@ -80,71 +80,157 @@
     "copyright": "",
     "nodes": [
         {
-            "id": 0,
-            "name": null,
-            "value": "md`# Build Time Pie Chart\n`",
-            "pinned": false,
-            "mode": "js",
-            "data": null,
-            "outputs": []
-        },
-        {
-            "id": 192,
-            "name": null,
-            "value": "data = d3.csvParse(`name,value\na, 60\nb, 60\nc, 180\nd, 1020\ne, 46\nf, 420\ng, 186\nh, 36\ni, 22\nj, 340\n`, d3.autoType)",
-            "pinned": true,
-            "mode": "js",
-            "data": null,
-            "outputs": []
-        },
-        {
-            "id": 719,
-            "name": null,
-            "value": "/** returns the midangle */\nmidAngle = function(startAngle,endAngle){\n  return startAngle + (endAngle - startAngle)/2;\n}",
-            "pinned": false,
-            "mode": "js",
-            "data": null,
-            "outputs": []
-        },
-        {
-            "id": 35,
-            "name": null,
-            "value": "color = d3.scaleOrdinal()\n    .domain(data.map(d => d.name))\n    .range(d3.quantize(t => d3.interpolateSpectral(t * 0.8 + 0.1), data.length).reverse())",
-            "pinned": false,
-            "mode": "js",
-            "data": null,
-            "outputs": []
-        },
-        {
-            "id": "00b86b23-5bd4-4c5f-bc39-5f68ec5bb4dc",
+            "id": "f8eec426-b959-40b3-84ef-2236737b7d8a",
             "name": "",
-            "value": "/* WSL recommended sorting for pie chart */\nMyWSJPieSorting = function(myArray){ let WSJproportion = [myArray[0]]\n    .concat(myArray.slice(2).reverse())\n    .concat(myArray[1]);\n  return WSJproportion;\n} ",
+            "value": "md`\n# Pie Chart\n`;\n",
             "mode": "js",
             "outputs": []
         },
         {
-            "id": 17,
-            "name": null,
-            "value": "chart = {\n  const pie = d3.pie()\n    .sort(null)\n    .value(d => d.value)\n\n\n  const _data = MyWSJPieSorting(data)\n  const arcs = pie(_data);\n  // const arcs = pie((data));\n  \n  const height = Math.min(width, 400);\n\n  const isOnLeftSide = (d) => midAngle(d.startAngle, d.endAngle) < Math.PI ;\n  const fontSize = 15;\n  const buildLabel = (d)=> `${d.data.name}: ${(d.data.value).toLocaleString(\"fr-FR\")}`;\n\n  const svg = d3.create(\"svg\")\n      .attr(\"viewBox\", [-width / 2, -height / 2, width, height]);\n  \n  const radius = Math.min(width, height) / 2;\n  \n  const donut = false;\n  var innerArc = d3.arc()\n    .outerRadius(radius * 0.8)\n    .innerRadius(radius * donut?0.4:0.0);\n  var outerArc = d3.arc()\n    .innerRadius(radius * 0.9)\n    .outerRadius(radius * 0.9);\n  \n  /* ----- total ------ */\n  svg.append(\"g\")\n      .attr(\"font-family\", \"sans-serif\")\n      .attr(\"font-size\", 24)\n      .attr(\"text-anchor\", \"middle\")\n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\"  )    \n    .append(\"text\")\n    \n    .call(text => text.append(\"tspan\")\n          .attr(\"y\", \"-0.4em\")\n          .attr(\"font-weight\", \"bold\")\n          .text(\"total\"))\n    .call(text => text.append(\"tspan\")\n          .attr(\"x\", 0)\n          .attr(\"y\", \"0.9em\")\n          .attr(\"font-weight\", \"bold\")\n          .text((d3.sum(data, d => d.value)).toLocaleString(\"fr-FR\")))\n  \n  \n  /* ------- pie slices -------*/\n  svg.append(\"g\")\n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\"  )    \n    .selectAll(\"path\")\n    .data(arcs)\n    .join(\"path\")\n      .attr(\"fill\", d => color(d.data.name))\n      .attr(\"d\", innerArc)\n  /* ------- text labels inside -------*/\n  svg.append(\"g\")      \n      .attr(\"font-size\", fontSize)\n      \n    .selectAll(\"text\")\n    .data(arcs)\n    .join(\"text\")\n\t\t.attr(\"transform\", function(d) {\n      \n      var pos = innerArc.centroid(d);\n      pos[0]=pos[0]-fontSize*0.75*buildLabel(d).length/2\n      return `translate(${pos})`;\n\t\t})\n    \n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\" )\n    .text(d=>buildLabel(d))\n  \n  /* ------- text labels outside -------*/\n  svg.append(\"g\")      \n      .attr(\"font-size\", fontSize)\n      \n    .selectAll(\"text\")\n    .data(arcs)\n    .join(\"text\")\n\t\t.attr(\"transform\", function(d) {\n      \n      var pos = outerArc.centroid(d);\n      pos[0] = radius * (isOnLeftSide(d) ? 1 : -1);\n      pos[1]= pos[1]+fontSize*0.3\n      return `translate(${pos})`;\n\t\t})\n    .attr(\"text-anchor\", d => isOnLeftSide(d) ? \"start\" : \"end\")\n    .attr(\"fill\", mode === \"dark\" ? \"white\": \"lightsteelblue\"  )\n    .text(d=>buildLabel(d))\n  \n  \n  /* ------- slice to text polylines -------*/\n  svg.append(\"g\")\n    .selectAll(\"polyline\")\n    .data(arcs)\n    .join(\"polyline\")\n      .attr(\"opacity\", \".3\")\n      .attr(\"stroke\",  mode === \"dark\" ? \"white\": \"lightsteelblue\"  )    \n      .attr(\"stroke-width\", \"2px\")\n      .attr(\"fill\", \"none\")\n      .attr(\"points\", function(d){\n        var pos = outerArc.centroid(d);\n        pos[0] = radius * 0.95 * (isOnLeftSide(d) ? 1 : -1);\n        return [innerArc.centroid(d), outerArc.centroid(d), pos];\n      });\n\n \n  return svg.node();\n}",
-            "pinned": false,
-            "mode": "js",
-            "data": null,
-            "outputs": []
-        },
-        {
-            "id": "807485ce-8439-4147-b853-3d4b15ce60ed",
+            "id": "1fe9ee56-0597-42b5-9603-da0d51310eab",
             "name": "",
-            "value": "mode = Generators.observe(notify => {\n  const query = matchMedia(\"(prefers-color-scheme: dark)\");\n  const changed = () => notify(query.matches ? \"dark\" : \"light\");\n  changed();\n  query.addListener(changed);\n  return () => query.removeListener(changed);\n})",
+            "value": "\nInputs.table(data)\n\n",
             "mode": "js",
             "outputs": []
         },
         {
-            "id": 6,
-            "name": null,
-            "value": "d3 = require(\"d3@5\")",
-            "pinned": false,
+            "id": "5c7cd819-5476-4048-9b46-418d4959d688",
+            "name": "",
+            "value": "\nviewof legendType = Inputs.select(legendTypes, {label: \"Legend\", value:\"outside\"})\n",
             "mode": "js",
-            "data": null,
+            "outputs": []
+        },
+        {
+            "id": "de8ef00d-3520-41b7-9412-b0aaf66832d4",
+            "name": "",
+            "value": "\nviewof sortMethod = Inputs.select(sortMethods, {label: \"Sort by\", value:\"byValue\"})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "47756927-ad44-42dc-a7d9-172aa941a764",
+            "name": "",
+            "value": "\n\n// FIXME: does not sort well\nviewof useWSJsort = Inputs.toggle({label:\"Wall Street Journal sorting (1) \", value:false, disabled:sortMethod===\"none\"})\nmd`<small>(1) Dona M. Wong, The Wall Street Journal Guide to Information Graphics: The Dos and Don'ts of Presenting Data, Facts, and Figures, W.W. Norton & Company, 2010</small>`\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "a51759e6-3039-4828-8792-1c5278796def",
+            "name": "",
+            "value": "\nviewof nbMaxSlices = Inputs.range([1,data.length], {label:\"Nb max slices\",step: 1, value:2})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "71cf597c-c190-4e8f-b1f1-6238b52d5227",
+            "name": "",
+            "value": "\n// \"spectral\"|\"rgb\"|\"hsl\"|\"viridis\"\nviewof gradientColor = Inputs.select(gradientColors, {label: \"Color gradient\", value:\"spectral\"})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "a3578feb-bd9c-4528-9458-2e2668fdeaa9",
+            "name": "",
+            "value": "\nviewof startColor = Inputs.color({label: \"Start color\", value: d3.color(\"red\").formatHex(), disabled:gradientColor===\"spectral\"||gradientColor===\"viridis\"})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "372673d6-5a57-4bc3-98d3-c269a46c3629",
+            "name": "",
+            "value": "viewof endColor = Inputs.color({label: \"End color\", value: d3.color(\"blue\").formatHex(), disabled:gradientColor===\"spectral\"||gradientColor===\"viridis\"})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "3334662d-c090-40bd-8f77-e925b07ad61f",
+            "name": "",
+            "value": "\nviewof gradientNbSteps = Inputs.range([1,nbMaxSlices], {label:\"Repeat color step\",step: 1, value:nbMaxSlices})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "342cdf5a-1630-4fbc-ae2e-17bdb51183e8",
+            "name": "",
+            "value": "\n\nviewof donut = Inputs.toggle({label:\"Mmmm donut!\", value:false})\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "36e4dcd4-360a-4564-ac4b-0efe721f716c",
+            "name": "",
+            "value": "  \nchart = {\n\nconst strokeColor = theme === \"dark\" ? \"white\" : \"black\"\nconst _nbMaxSlices = Math.min(nbMaxSlices,data.length)\n  \nlet _data = [...data];\n\n// sort for legend\n\nconst _sortingFunctor = sortFunctorNoWSJ(_data);\nif (_sortingFunctor!==null) {\n  _data = _data. sort(_sortingFunctor)\n} \n\n\n\nif (_nbMaxSlices<data.length) {  \n  const kept = _data.slice(0,_nbMaxSlices)\n  const rest = _data.slice(_nbMaxSlices, _data.length)\n  let reduced = {name: \"other\", value:rest.reduce((accum,d)=>accum+d.value,0)}\n _data = kept.concat([reduced]);\n  //_data = _data.concat([{name: \"other\", value:__data.slice(_nbMaxSlices-1,__data.length).reduce((accum,d)=>accum+d.value,0)}])\n}\n\n\n\nlet color = d3\n  .scaleOrdinal()\n  .domain(_data.map((d) => d.value))\n  .range(buildColor().concat(\"grey\"));\n\n\n// sort for pie\nconst pie = d3.pie()\n    .sort(sortFunctor(_data))\n    .value(function(d) {return d.value; })\n  \nconst arcs =pie(_data);\n\nconst height = Math.min(width, 400);\n\nconst isOnLeftSide = (d) => midAngle(d.startAngle, d.endAngle) < Math.PI;\nconst fontSize = 15;\nconst buildLabel = (d) =>\n    `${d.data.name}: ${d.data.value.toLocaleString(\"fr-FR\")}`;\n\nconst svg = d3\n    .create(\"svg\")\n    .attr(\"viewBox\", [-width / 2, -height / 2, width, height*1.2]);\n\nconst radius = Math.min(width, height) / 2;\n\n  \nconst innerArc = d3\n    .arc()\n    .outerRadius(radius * 0.8)\n    .innerRadius(radius * (donut ? 0.4 : 0.0));\nconst outerArc = d3\n    .arc()\n    .innerRadius(radius * 0.9)\n    .outerRadius(radius * 0.9);\n\nif (donut) {\n    /* ----- total ------ */\n    svg\n      .append(\"g\")\n      .attr(\"font-family\", \"sans-serif\")\n      .attr(\"font-size\", fontSize*1.2)\n      .attr(\"text-anchor\", \"middle\")\n      .attr(\"fill\", strokeColor)\n      .append(\"text\")\n\n      .call((text) =>\n        text\n          .append(\"tspan\")\n          .attr(\"y\", \"-0.4em\")\n          \n          .text(\"total:\")\n      )\n      .call((text) =>\n        text\n          .append(\"tspan\")\n          .attr(\"x\", 0)\n          .attr(\"y\", \"0.9em\")\n          \n          .text(d3.sum(_data, (d) => d.value).toLocaleString(\"fr-FR\"))\n      );\n  }\n\n  /* ------- pie slices -------*/\nsvg\n    .append(\"g\")\n    .attr(\"fill\", strokeColor)\n    .selectAll(\"path\")\n    .data(arcs)\n    .join(\"path\")\n    .attr(\"fill\", (d) => color(d.value))\n    .attr(\"d\", innerArc);\n\n  \n/* ------- text labels inside -------*/\nif (legendType===\"inside\") { \n    svg\n      .append(\"g\")\n      .attr(\"font-size\", fontSize)\n      .selectAll(\"text\")\n      .data(arcs)\n      .join(\"text\")\n      .attr(\"transform\", function (d) {\n        var pos = innerArc.centroid(d);\n        pos[0] = pos[0] - (fontSize * 0.75 * buildLabel(d).length) / 2;\n        return `translate(${pos})`;\n      })\n\n      .attr(\"fill\", strokeColor)\n      .text((d) => buildLabel(d));\n  }\n\n  /* ------- polylines: text labels  -------*/\n  if (legendType===\"polylines\") { \n    svg\n      .append(\"g\")\n      .attr(\"font-size\", fontSize)\n      .selectAll(\"text\")\n      .data(arcs)\n      .join(\"text\")\n      .attr(\"transform\", function (d) {\n        var pos = outerArc.centroid(d);\n        pos[0] = radius * (isOnLeftSide(d) ? 1 : -1);\n        pos[1] = pos[1] + fontSize * 0.3;\n        return `translate(${pos})`;\n      })\n      .attr(\"text-anchor\", (d) => (isOnLeftSide(d) ? \"start\" : \"end\"))\n      .attr(\"fill\", strokeColor)\n      .text((d) => buildLabel(d));\n\n    /* ------- polylines: lines joining slice to text  -------*/\n    svg\n      .append(\"g\")\n      .selectAll(\"polyline\")\n      .data(arcs)\n      .join(\"polyline\")\n      .attr(\"opacity\", \".3\")\n      .attr(\"stroke\", strokeColor)\n      .attr(\"stroke-width\", \"2px\")\n      .attr(\"fill\", \"none\")\n      .attr(\"points\", function (d) {\n        var pos = outerArc.centroid(d);\n        pos[0] = radius * 0.95 * (isOnLeftSide(d) ? 1 : -1);\n        return [innerArc.centroid(d), outerArc.centroid(d), pos];\n      });\n  }\n\n  if (legendType===\"outside\") {\n\n    const legend = svg\n      .append('g')\n      .attr('transform', `translate(${radius  + 20},${-radius+40})`);\n\n    legend\n      .selectAll(null)\n      .data(arcs)\n      .enter()\n      .append('rect')\n      .attr('y', d => fontSize * d.index *1.8)\n      .attr('width', fontSize)\n      .attr('height', fontSize)\n      .attr('fill', d => color(d.value))\n      .attr('stroke', strokeColor)\n      .style('stroke-width', '1px');\n\n    legend\n      .selectAll(null)\n      .data(arcs)\n      .enter()\n      .append('text')\n      .text(d=> buildLabel(d)) //d => d.name\n      .attr('x', fontSize * 1.5)\n      .attr('y', d => fontSize * d.index *1.8 +fontSize )  \n      .style('font-size', `${fontSize}px`);\n  }\n\n  // title\n   svg\n      .append('g')\n      .attr('transform', `translate(${-radius},${radius+20})`)\n      .append('text')\n      .attr(\"font-size\", fontSize*1.5)\n      .text(\"Mon bon camembert AOC\") //d => d.name\n  return svg.node();\n}\n\n\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "d5d2b315-b7e8-429d-91ed-c847780f972d",
+            "name": "",
+            "value": "\n\nd3 = require(\"d3@5\");\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "c87d4f3c-76ee-43e9-97a0-0ced11f5c0a0",
+            "name": "",
+            "value": "\ndata = d3.csvParse(\n`name,value\ni, 40\na, 90\nb, 60\nc, 180\ne, 46\nf, 420\nd, 1020\nh, 36\ng, 186\nj, 340\n`,\n  d3.autoType\n);\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "ad6b2171-5e38-4c23-88a2-c9a28ef374ec",
+            "name": "",
+            "value": "\n\nlegendTypes= [\"inside\",\"polylines\", \"outside\"]\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "9c8f8e42-0a2d-4ee8-980f-8c1bc5502c6d",
+            "name": "",
+            "value": "sortMethods=[\"none\",\"byName\",\"byValue\"]\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "be5128e2-6e77-4d94-bc35-278cc7f4a841",
+            "name": "",
+            "value": "gradientColors=[\"spectral\",\"rgb\",\"hsl\",\"viridis\"]\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "c9a0030c-c4a0-4125-ad62-3ae386864225",
+            "name": "",
+            "value": "\n  /** returns the midangle */\n   midAngle = (startAngle, endAngle) => {\n    return startAngle + (endAngle - startAngle) / 2;\n  };\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "5c779bc9-da46-437b-af83-1dcc0d610487",
+            "name": "",
+            "value": "\n \n\n\n  sortFunctor = (data) => {\n    \n    let _sortFunctor = sortFunctorNoWSJ(data);\n    \n    if (!useWSJsort) {\n      return _sortFunctor\n    }\n     \n    /* WSL recommended sorting for pie chart  */\n    /** see https://bl.ocks.org/vijithassar/3cc6ecbc0a8dcfaf4e47f44b97637012 */\n    let _data=[...data];\n    const sorted = _data.sort(_sortFunctor);\n    const first = sorted[0]\n    const last = sorted[1]\n    const rest = sorted.slice(2)\n    const ordered = [first,  ...rest, last]\n    return (a,b)=> ordered.indexOf(a) - ordered.indexOf(b)\n  \n  }\n\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "fbc0ee16-8a1b-4d81-ba9f-012fd4d59a29",
+            "name": "",
+            "value": "\n  sortFunctorNoWSJ = (data) => {\n    if (sortMethod===\"none\") {\n      return null;\n    }\n\n    let _sortFunctor = undefined;\n    if (sortMethod===\"byName\") {\n      _sortFunctor = (a,b)=> a.name.localeCompare(b.name);\n    }\n    if (sortMethod===\"byValue\") {\n      _sortFunctor = (a,b)=> b.value - a.value;\n    }\n\n      return _sortFunctor\n\n  }\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "d832cbc4-c38b-4263-929b-a956df6d793c",
+            "name": "",
+            "value": "\n  buildColor = () => {\n\n  if (gradientColor===\"spectral\") {\n     if (nbMaxSlices===1) {\n      return [d3.interpolateSpectral(0.1)]\n    }\n    return d3.quantize((t) => d3.interpolateSpectral(t * 0.8 + 0.1), gradientNbSteps) \n  }\n\n  if (gradientColor===\"rgb\") {\n    if (nbMaxSlices===1) {\n      return [startColor]\n    }\n    return d3.quantize((t) => d3.interpolateRgb(startColor, endColor)(t * 0.8 + 0.1), gradientNbSteps)\n  }\n\n  if (gradientColor===\"hsl\") {\n    if (nbMaxSlices===1) {\n      return [startColor]\n    }\n    return d3.quantize((t) => d3.interpolateHslLong(startColor, endColor)(t), gradientNbSteps)\n  }\n\n  if (gradientColor===\"viridis\") {\n    if (nbMaxSlices===1) {\n      return [d3.interpolateViridis(0)]\n    }\n    return d3.quantize((t) => d3.interpolateViridis(t), gradientNbSteps)\n  }\n\n  \n  \n}\n\n\n",
+            "mode": "js",
+            "outputs": []
+        },
+        {
+            "id": "2f8bd14e-fc5a-461e-aa04-15e57db77b68",
+            "name": "",
+            "value": "\n\n/*\ntheme = Generators.observe((notify) => {\n  const query = matchMedia(\"(prefers-color-scheme: dark)\");\n  const changed = () => notify(query.matches ? \"dark\" : \"light\");\n  changed();\n  query.addListener(changed);\n  return () => query.removeListener(changed);\n});\n*/\n\ntheme = \"light\"\n",
+            "mode": "js",
             "outputs": []
         }
     ],
