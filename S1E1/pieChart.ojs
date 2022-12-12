@@ -42,7 +42,7 @@ let _data = [...data];
 
 // sort for legend
 
-const _sortingFunctor = sortFunctorNoWSJ(_data);
+const _sortingFunctor = sortFunctor(_data);
 if (_sortingFunctor!==null) {
   _data = _data. sort(_sortingFunctor)
 } 
@@ -67,7 +67,7 @@ let color = d3
 
 // sort for pie
 const pie = d3.pie()
-    .sort(sortFunctor(_data))
+    .sort(sortFunctorWithWSJ(_data))
     .value(function(d) {return d.value; })
   
 const arcs =pie(_data);
@@ -259,9 +259,9 @@ gradientColors=["spectral","rgb","hsl","viridis","plasma","turbo"]
  
 
 
-  sortFunctor = (data) => {
+  sortFunctorWithWSJ = (data) => {
     
-    let _sortFunctor = sortFunctorNoWSJ(data);
+    let _sortFunctor = sortFunctor(data);
     
     if (!useWSJsort) {
       return _sortFunctor
@@ -280,7 +280,7 @@ gradientColors=["spectral","rgb","hsl","viridis","plasma","turbo"]
   }
 
 
-  sortFunctorNoWSJ = (data) => {
+  sortFunctor = (data) => {
     if (sortMethod==="none") {
       return null;
     }
