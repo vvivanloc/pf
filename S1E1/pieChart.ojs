@@ -1,41 +1,47 @@
 md`
-# Pie Chart
+# Diagramme sectoriel - Camembert
 `;
 
-Inputs.table(data)
+Inputs.table(data, {columns: [
+    "name",
+    "value"
+  ],
+  header: {
+    name: "Poste",
+    value: "Consommation en pourcentage",
+    
+  }
+})
 
+viewof legendType = Inputs.select(legendTypes, {label: "Légende", value:"ligne d'attache"})
 
-viewof legendType = Inputs.select(legendTypes, {label: "Legend", value:"outside"})
+viewof sortMethod = Inputs.select(sortMethods, {label: "Trier par", value:"par valeur"})
 
-viewof sortMethod = Inputs.select(sortMethods, {label: "Sort by", value:"byValue"})
+viewof useWSJsort = Inputs.toggle({label:"Ordre de tri proposé par le \"Wall Street Journal\" (1) ", value:false, disabled:sortMethod==="aucun"})
+md`<small>Cela permet une comparaison plus naturelle : les deux plus gros secteurs apparaîssent sur les côtés gauche et droit, en haut du camembert.
+* [Dona M. Wong, The Wall Street Journal Guide to Information Graphics: The Dos and Don'ts of Presenting Data, Facts, and Figures, W.W. Norton & Company, 2010](https://books.google.fr/books/about/The_Wall_Street_Journal_Guide_to_Informa.html?id=RmaJPgAACAAJ&redir_esc=y)</small>`
 
+viewof nbMaxSlices = Inputs.range([1,data.length], {label:"Nombre de parts",step: 1, value:2})
 
-// FIXME: does not sort well
-viewof useWSJsort = Inputs.toggle({label:"Wall Street Journal sorting (1) ", value:false, disabled:sortMethod==="none"})
-md`<small> Allow a more natural comparison than simply positioning each segment in the original order. <br/> 
-The two largest pieces should appear at the top of the chart, on the right and left hand sides of the 12 o'clock position. This aligns the two most consequential data points on either side of a shared vertical axis. 
-<br/>(1) Dona M. Wong, The Wall Street Journal Guide to Information Graphics: The Dos and Don'ts of Presenting Data, Facts, and Figures, W.W. Norton & Company, 2010</small>`
-
-viewof nbMaxSlices = Inputs.range([1,data.length], {label:"Nb max slices",step: 1, value:2})
-
-// "spectral"|"rgb"|"hsl"|"viridis"
-viewof gradientColor = Inputs.select(gradientColors, {label: "Color gradient", value:"spectral"})
+viewof gradientColor = Inputs.select(gradientColors, {label: "Nuancier", value:"prédéfini"})
 
 md`* <small>[Bob Rudis, Noam Ross and Simon Garnier, Introduction to the viridis color maps, 2021](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html)</small>
 * <small>[Nathaniel Smith and Stéfan van der Walt, A Better Default Colormap for Matplotlib,A Better Default Colormap for Matplotlib, SciPy 2015](https://www.youtube.com/watch?v=xAoljeRJ3lU)</small>`
 
+viewof startColor = Inputs.color({label: "Couleur de départ", value: "#ff4040", disabled:disabledPicker})
+viewof endColor = Inputs.color({label: "Couleur d'arrivée", value: "#4040ff", disabled:disabledPicker})
+viewof gradientNbSteps = Inputs.range([1,nbMaxSlices], {label:"Répétion des couleurs",step: 1, value:nbMaxSlices})
 
 
-viewof startColor = Inputs.color({label: "Start color", value: d3.color("red").formatHex(), disabled:disabledPicker})
-viewof endColor = Inputs.color({label: "End color", value: d3.color("blue").formatHex(), disabled:disabledPicker})
-viewof gradientNbSteps = Inputs.range([1,nbMaxSlices], {label:"Repeat color step",step: 1, value:nbMaxSlices})
+viewof donut = Inputs.toggle({label:"Donut", value:false})
+viewof startAngle =  Inputs.range([-360,360], {label:"Angle de départ",step: 45, value:0})
+viewof endAngle =  Inputs.range([-360,360], {label:"Angle de fin",step: 45, value:360})
 
-
-viewof donut = Inputs.toggle({label:"Mmmm donut!", value:false})
   
 chart = {
 
 const strokeColor = theme === "dark" ? "white" : "black"
+const arcStrokeColor = theme === "dark" ? "black" : "white"
 const _nbMaxSlices = Math.min(nbMaxSlices,data.length)
   
 let _data = [...data];
@@ -52,7 +58,7 @@ if (_sortingFunctor!==null) {
 if (_nbMaxSlices<data.length) {  
   const kept = _data.slice(0,_nbMaxSlices)
   const rest = _data.slice(_nbMaxSlices, _data.length)
-  let reduced = {name: "other", value:rest.reduce((accum,d)=>accum+d.value,0)}
+  let reduced = {name: "Autres", value:rest.reduce((accum,d)=>accum+d.value,0)}
  _data = kept.concat([reduced]);
   //_data = _data.concat([{name: "other", value:__data.slice(_nbMaxSlices-1,__data.length).reduce((accum,d)=>accum+d.value,0)}])
 }
@@ -65,23 +71,33 @@ let color = d3
   .range(buildColor().concat("grey"));
 
 
+const startAngleRad= startAngle * (Math.PI / 180)
+const endAngleRad= endAngle * (Math.PI / 180)
+
 // sort for pie
 const pie = d3.pie()
+    .startAngle(startAngleRad)
+    .endAngle(endAngle * (Math.PI / 180))    
     .sort(sortFunctorWithWSJ(_data))
     .value(function(d) {return d.value; })
   
 const arcs =pie(_data);
 
-const height = Math.min(width, 400);
+const height = Math.min(width, 500);
 
-const isOnLeftSide = (d) => midAngle(d.startAngle, d.endAngle) < Math.PI;
+const isOnLeftSide = (d) => {
+  let _midAngle = (midAngle(d.startAngle, d.endAngle)+Math.PI*2)%(Math.PI*2);
+  return _midAngle < Math.PI;
+}
+
+
 const fontSize = 15;
 const buildLabel = (d) =>
     `${d.data.name}: ${d.data.value.toLocaleString("fr-FR")}`;
 
 const svg = d3
     .create("svg")
-    .attr("viewBox", [-width / 2, -height / 2, width, height*1.2]);
+    .attr("viewBox", [-width /2, -height / 2, width, height*1.5]);
 
 const radius = Math.min(width, height) / 2;
 
@@ -110,7 +126,7 @@ if (donut) {
           .append("tspan")
           .attr("y", "-0.4em")
           
-          .text("total:")
+          .text("Total :")
       )
       .call((text) =>
         text
@@ -130,11 +146,13 @@ svg
     .data(arcs)
     .join("path")
     .attr("fill", (d) => color(d.value))
+    .style('stroke', arcStrokeColor)
+    .style('stroke-width', 2)
     .attr("d", innerArc);
 
   
 /* ------- text labels inside -------*/
-if (legendType==="inside") { 
+if (legendType==="à l'intérieur") { 
     svg
       .append("g")
       .attr("font-size", fontSize)
@@ -152,7 +170,7 @@ if (legendType==="inside") {
   }
 
   /* ------- polylines: text labels  -------*/
-  if (legendType==="polylines") { 
+  if (legendType==="ligne d'attache") { 
     svg
       .append("g")
       .attr("font-size", fontSize)
@@ -186,7 +204,7 @@ if (legendType==="inside") {
       });
   }
 
-  if (legendType==="outside") {
+  if (legendType==="sur le côté") {
 
     const legend = svg
       .append('g')
@@ -218,38 +236,35 @@ if (legendType==="inside") {
   // title
    svg
       .append('g')
-      .attr('transform', `translate(${-radius+title.length*fontSize*0.2},${radius+20})`)
+      .attr('transform', `translate(${-radius+title.length},${radius+20})`)
       .append('text')
       .attr("font-size", fontSize*1.5)
       .text(title) //d => d.name
+
+
   return svg.node();
 }
 
 
-title= "Mon bon camembert AOC"
+title= "Emissions de CO₂ en France 2019"
 
 d3 = require("d3@5");
 
 data = d3.csvParse(
-`name,value
-i, 40
-a, 90
-b, 60
-c, 180
-e, 46
-f, 420
-d, 1020
-h, 36
-g, 186
-j, 340
+`name,value,color
+Alimentation , 24, #8DD3C7,
+Consommation, 16, #fb8072,
+Transport, 27, #80b1d3,
+Dépenses publiques, 14, #bebada,
+Habitat, 19, #ffffb3
 `,
   d3.autoType
 );
 
 
-legendTypes= ["inside","polylines", "outside"]
-sortMethods=["none","byName","byValue"]
-gradientColors=["spectral","rgb","hsl","viridis","plasma","turbo"]
+legendTypes= ["à l'intérieur","ligne d'attache", "sur le côté"]
+sortMethods=["aucun","par nom","par valeur"]
+gradientColors=["prédéfini","aucun","monochrome","spectral","rgb","hsl","viridis","plasma","turbo"]
 
   /** returns the midangle */
    midAngle = (startAngle, endAngle) => {
@@ -281,15 +296,15 @@ gradientColors=["spectral","rgb","hsl","viridis","plasma","turbo"]
 
 
   sortFunctor = (data) => {
-    if (sortMethod==="none") {
+    if (sortMethod==="aucun") {
       return null;
     }
 
     let _sortFunctor = undefined;
-    if (sortMethod==="byName") {
+    if (sortMethod==="par nom") {
       _sortFunctor = (a,b)=> a.name.localeCompare(b.name);
     }
-    if (sortMethod==="byValue") {
+    if (sortMethod==="par valeur") {
       _sortFunctor = (a,b)=> b.value - a.value;
     }
 
@@ -320,6 +335,16 @@ gradientColors=["spectral","rgb","hsl","viridis","plasma","turbo"]
     return d3.quantize((t) => d3.interpolateHslLong(startColor, endColor)(t), gradientNbSteps)
   }
 
+  if (gradientColor==="monochrome") {
+    if (nbMaxSlices===1) {
+      return [startColor]
+    }
+    const hsl= d3.hsl(startColor);
+    const notSatured= d3.rgb(d3.hsl(hsl.h, 0.1, hsl.l))
+    return d3.quantize((t) => d3.interpolateHslLong(startColor, notSatured)(t), gradientNbSteps)
+  }
+
+
   if (gradientColor==="viridis") {
     if (nbMaxSlices===1) {
       return [d3.interpolateViridis(0)]
@@ -340,10 +365,36 @@ gradientColors=["spectral","rgb","hsl","viridis","plasma","turbo"]
     }
     return d3.quantize((t) => d3.interpolateTurbo(t+0.05), gradientNbSteps)
   }
+
+  if (gradientColor==="prédéfini") {
+      let _sortFunctor = sortFunctor(data);
+      let _data= [... data];
+      if (_sortFunctor!==null) {
+        _data = _data. sort(_sortFunctor)
+      } 
+      let colors= _data.map(d=>d.color)
+      colors= colors.map((d,index)=>colors[index%gradientNbSteps])
+      if (nbMaxSlices<data.length) {
+        colors[nbMaxSlices]="gray"
+      } 
+    
+    return colors
+  }
+
+  if (gradientColor==="aucun") {
+    let _data= [... data];
+    let colors= _data.map(d=>"lightgray")
+    colors= colors.map((d,index)=>colors[index%gradientNbSteps])
+    if (nbMaxSlices<data.length) {
+      colors[nbMaxSlices]="gray"
+    } 
+    
+    return colors
+  }
   
 }
 
-disabledPicker = gradientColor!=="hsl"&&gradientColor!=="rgb"
+disabledPicker = gradientColor!=="hsl"&&gradientColor!=="rgb"&&gradientColor!=="monochrome"
 
 
 /*
@@ -357,3 +408,4 @@ theme = Generators.observe((notify) => {
 */
 
 theme = "light"
+
